@@ -21,7 +21,7 @@ The system shows the **real-time date and time** on a 16×2 LCD. You can **set t
 | **Input** | 4×4 keypad + one configuration push-button (EINT0) |
 | **Output** | 16×2 LCD + LED (device) |
 | **Language / Tool** | Embedded C · Keil µVision · Flash Magic |
-| **Source file** | `final_test_2.c` (single file, all drivers included) |
+| **Source file** | `Menu-Driven-RTC-Scheduled-Device-Control.c` (single file, all drivers included) |
 
 ---
 
