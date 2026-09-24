@@ -290,7 +290,7 @@ Connect everything as shown in [Circuit Connections](#-circuit-connections). Dou
 1. **Project → New µVision Project**, and choose a folder.
 2. Select the device **NXP → LPC2148**.
 3. If Keil asks to copy the startup file to the project, click **Yes**.
-4. Add `final_test_2.c` to the **Source Group**.
+4. Add `Menu-Driven-RTC-Scheduled-Device-Control.c` to the **Source Group**.
 5. Open **Options for Target (Alt+F7)**:
    - **Target** tab → **Xtal (MHz): 12.0**
    - **Output** tab → tick **Create HEX File**
@@ -714,7 +714,7 @@ Use this table to check that the project works. Tick each row after testing.
 ```
 Menu-Driven-RTC-Scheduled-Device-Control/
 │
-├── final_test_2.c              # Complete single-file application source
+├── Menu-Driven-RTC-Scheduled-Device-Control.c              # Complete single-file application source
 ├── README.md                   # This documentation
 │
 └── docs/
@@ -727,7 +727,7 @@ Menu-Driven-RTC-Scheduled-Device-Control/
 
 ## 🔍 Source Code Overview
 
-### Major modules inside `final_test_2.c`
+### Major modules inside `Menu-Driven-RTC-Scheduled-Device-Control.c`
 
 | Module / Function Group | Purpose |
 |-------------------------|---------|
