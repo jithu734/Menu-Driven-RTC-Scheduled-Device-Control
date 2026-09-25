@@ -791,28 +791,8 @@ Menu-Driven-RTC-Scheduled-Device-Control/
 - Modular multi-file project structure with Makefiles
 
 ---
+Author
 
-## 📄 License
-
-This project is developed for **educational purposes**.
-You are free to use, modify, and distribute the code for learning and academic work.
-
-Attribution is appreciated but not required.
-
----
-
-## 🙏 Acknowledgements
-
-- Original project specification by **Vector India**
-- NXP LPC2148 User Manual and ARM Architecture Reference
-- Embedded systems community resources
-
----
-
-<div align="center">
-
-### 🌟 ALL THE BEST 🌟
-
-*If you find this project useful, please give it a ⭐ on GitHub!*
+Jithendra Sadineni
 
 </div>
