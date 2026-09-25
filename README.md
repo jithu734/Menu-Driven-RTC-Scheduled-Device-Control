@@ -791,8 +791,8 @@ Menu-Driven-RTC-Scheduled-Device-Control/
 - Modular multi-file project structure with Makefiles
 
 ---
-Author
+## Author
 
-Jithendra Sadineni
+**Jithendra Sadineni**
 
 </div>
