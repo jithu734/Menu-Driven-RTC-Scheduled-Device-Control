@@ -43,7 +43,7 @@
 #define Sector 7               // Target Flash sector for saving schedule data
 #define Sector_Addr 0x00007000 // Flash Sector 7 base start address
 #define CCLK_KHZ 60000         // Core Clock frequency expressed in kHz for IAP parameter
-//#define LPC2129
+
 
 
 typedef  char u8;          // 8-bit character data type
@@ -133,7 +133,7 @@ u8 SHED_MENU[5][16]={
 
 // Schedules for device control: Start time and End time
 u8 RTC_SHED_START[]={"ON:-00:00:00    "};
-u8 RTC_SHED_END[]  ={"OF:-00:00:00    "};
+u8 RTC_SHED_END[]  ={"OFF:-00:00:00    "};
 
 u8 CGRAM_SPC[]={0x04,0x0E,0X1F,0X1F,0X04,0X04,0X04,0X00,0X04,0X04,0X04,0X1F,0X1F,0X0E,0X04,0X00,0x20,0x20,0x01,0x03,0x16,0x1c,0x08,0x00,0x20,0x11,0x0a,0x04,0x0a,0x11,0x20,0x00,0X20,0X04,0X0e,0X1F,0X0E,0X04,0X20,0X00 };
 
@@ -269,12 +269,13 @@ void LCD_FLOAT(f32 fnum)
 void rtc_init()
 {
         #ifdef LPC2129
-        PREINT=PREINT_VAL;    // Set Integer Prescaler value
+       PREINT=PREINT_VAL;    // Set Integer Prescaler value
         PREFRAC=PREFRAC_VAL;  // Set Fractional Prescaler value
         CCR=1<<0;             // Enable Real Time Clock (CLKEN = 1)
-        #else
-        CCR|=1<<4;            // Enable external clock source
-        CCR|=1<<0;            // Start RTC
+       #else
+       CCR |=(1<<1);            // Enable external clock source
+        CCR |=(1<<4);            // Start RTC
+        CCR |=(1<<0);
         #endif
 }
 
@@ -319,13 +320,13 @@ void Display()
         }
 
         // Compare RTC time with scheduled START time -> Turn ON target Device at P1.30
-      if( (GET_TIME_VAL(RTC_SHED_START,4,5) < GET_TIME_VAL(RTC_SHED_END,4,5)) ||
-    (GET_TIME_VAL(RTC_SHED_START,4,5)==GET_TIME_VAL(RTC_SHED_END,4,5) && GET_TIME_VAL(RTC_SHED_START,7,8) <= GET_TIME_VAL(RTC_SHED_END,7,8)) )
+      if( (GET_TIME_VAL(RTC_SHED_START,4,5) < GET_TIME_VAL(RTC_SHED_END,5,6)) ||
+    (GET_TIME_VAL(RTC_SHED_START,4,5)==GET_TIME_VAL(RTC_SHED_END,5,6) && GET_TIME_VAL(RTC_SHED_START,7,8) <= GET_TIME_VAL(RTC_SHED_END,8,9)) )
 {
         if( (HOUR > GET_TIME_VAL(RTC_SHED_START,4,5) || (HOUR==GET_TIME_VAL(RTC_SHED_START,4,5) && MIN > GET_TIME_VAL(RTC_SHED_START,7,8)) ||
              (HOUR==GET_TIME_VAL(RTC_SHED_START,4,5) && MIN==GET_TIME_VAL(RTC_SHED_START,7,8) && SEC>=GET_TIME_VAL(RTC_SHED_START,10,11))) &&
-            (HOUR < GET_TIME_VAL(RTC_SHED_END,4,5) || (HOUR==GET_TIME_VAL(RTC_SHED_END,4,5) && MIN < GET_TIME_VAL(RTC_SHED_END,7,8)) ||
-             (HOUR==GET_TIME_VAL(RTC_SHED_END,4,5) && MIN==GET_TIME_VAL(RTC_SHED_END,7,8) && SEC<GET_TIME_VAL(RTC_SHED_END,10,11))) )
+            (HOUR < GET_TIME_VAL(RTC_SHED_END,5,6) || (HOUR==GET_TIME_VAL(RTC_SHED_END,5,6) && MIN < GET_TIME_VAL(RTC_SHED_END,8,9)) ||
+             (HOUR==GET_TIME_VAL(RTC_SHED_END,5,6) && MIN==GET_TIME_VAL(RTC_SHED_END,8,9) && SEC<GET_TIME_VAL(RTC_SHED_END,11,12))) )
                 IOSET1=1<<DEV0_PIN;
         else
                 IOCLR1=1<<DEV0_PIN;
@@ -334,13 +335,13 @@ else
 {
         if( (HOUR > GET_TIME_VAL(RTC_SHED_START,4,5) || (HOUR==GET_TIME_VAL(RTC_SHED_START,4,5) && MIN > GET_TIME_VAL(RTC_SHED_START,7,8)) ||
              (HOUR==GET_TIME_VAL(RTC_SHED_START,4,5) && MIN==GET_TIME_VAL(RTC_SHED_START,7,8) && SEC>=GET_TIME_VAL(RTC_SHED_START,10,11))) ||
-            (HOUR < GET_TIME_VAL(RTC_SHED_END,4,5) || (HOUR==GET_TIME_VAL(RTC_SHED_END,4,5) && MIN < GET_TIME_VAL(RTC_SHED_END,7,8)) ||
-             (HOUR==GET_TIME_VAL(RTC_SHED_END,4,5) && MIN==GET_TIME_VAL(RTC_SHED_END,7,8) && SEC<GET_TIME_VAL(RTC_SHED_END,10,11))) )
+            (HOUR < GET_TIME_VAL(RTC_SHED_END,5,6) || (HOUR==GET_TIME_VAL(RTC_SHED_END,5,6) && MIN < GET_TIME_VAL(RTC_SHED_END,7,8)) ||
+             (HOUR==GET_TIME_VAL(RTC_SHED_END,5,6) && MIN==GET_TIME_VAL(RTC_SHED_END,8,9) && SEC<GET_TIME_VAL(RTC_SHED_END,11,12))) )
                 IOSET1=1<<DEV0_PIN;
         else
                 IOCLR1=1<<DEV0_PIN;
-}			
-       
+}
+
 
 }
 
@@ -446,7 +447,7 @@ void Flage_call()
                                          break;
 
                                 // Menu 2 selected: Modify Device ON/OFF schedule
-                                case '2':Edit_Sehd();T1TC=0;DisMoveDw();//Upload_shed();Update_Shed();
+                                case '2':Edit_Sehd();T1TC=0;DisMoveDw();Upload_shed();Update_Shed();
                                          delay_ms1(5000);break;
 
                                 // Exit menu option
@@ -830,8 +831,8 @@ void Edit_Sehd(void)
                                         num=Get_Num_Input(2,0,23,&ok);
                                         if(ok)
                                         {
-                                                RTC_SHED_END[4]=((num/10)+'0');
-                                                RTC_SHED_END[5]=((num%10)+'0');
+                                                RTC_SHED_END[5]=((num/10)+'0');
+                                                RTC_SHED_END[6]=((num%10)+'0');
                                         }
                                         Show_Shed_Menu(midx);
                                         T1TC=0;
@@ -843,8 +844,8 @@ void Edit_Sehd(void)
                                         num=Get_Num_Input(2,0,59,&ok);
                                         if(ok)
                                         {
-                                                RTC_SHED_END[7]=((num/10)+'0');
-                                                RTC_SHED_END[8]=((num%10)+'0');
+                                                RTC_SHED_END[8]=((num/10)+'0');
+                                                RTC_SHED_END[9]=((num%10)+'0');
                                         }
                                         Show_Shed_Menu(midx);
                                         T1TC=0;
@@ -859,110 +860,6 @@ void Edit_Sehd(void)
         LCD_CMD(DISP_ON);
 }
 
-// Validates key inputs and updates the current string arrays for Time & Date
-void Time_set(u32 pos,u8 k_value)
-{
-
-        if(pos==0||pos==1||pos==3||pos==4||pos==6||pos==7)
-        {
-                                                                // Validate lower digits of minutes/seconds (0-9)
-                                                                if((pos==4 || pos==7)&&(k_value-'0')<=9)
-                                                                {
-                                Time[pos]=k_value;
-                                                                }
-                                                                // Validate tens digits of minutes/seconds (0-5)
-                                                                if((pos==3 || pos==6)&&(k_value-'0')<=5)
-                                                                {
-                                Time[pos]=k_value;
-                                                                }
-                                                                // Validate tens digit of hours (0-2)
-                                                                if(pos==0 &&(k_value-'0')<=2)
-                                                                {
-                                Time[pos]=k_value;
-                                                                        if(Time[pos]==2)
-                                                                                Time[pos+1]='0';
-                                                                }
-                                                                // Validate units digit of hours (up to 23 hours MAX)
-                                                                if(pos==1)
-                                                                {
-                                                                        if((Time[pos-1]-'0')==2 && (k_value-'0')<=3)
-                                                                        {
-                      Time[pos]=k_value;
-                                                                        }
-                                                                        else if ((Time[3]-'0')!=2)
-                                                                        {
-                                                                                Time[pos]=k_value;
-                                                                        }
-                                                                }
-                                                                // Redraw LCD contents
-                                                                LCD_CMD(0x80);
-                                                                LCD_STR(Time);
-                                                                LCD_CMD(0xc0);
-                                                                LCD_STR(Date);
-                                                                LCD_CMD(0x80+pos);
-        }
-                                // Set Day of Week index (0-6)
-                                else if(pos>=10 && pos<=12)
-                                {
-
-                                        DOW=(k_value-'0');
-                                        DAY();
-                                        LCD_CMD(0x80);
-                                        LCD_STR(Time);
-                                        LCD_CMD(0xc0);
-                                        LCD_STR(Date);
-                                        LCD_CMD(0x80+pos);
-
-                                }
-                                // Set Date fields: Day of Month, Month, and Year digits
-        else if(pos==16||pos==17||pos==19||pos==20||pos==22||pos==23||pos==24||pos==25)
-        {
-
-                                                                // Update Year digits directly
-                                                                if(pos==22||pos==23||pos==24||pos==25)
-                                Date[pos-16]=k_value;
-
-                                                                // Validate tens digit of Day of Month (0-3)
-                                                                if(pos==16 && (k_value-'0')<=3)
-                                                                {
-                                                                        Date[pos-16]=k_value;
-                                                                        if((Date[0]-'0')==3)
-                                                                        Date[pos-15]=0+'0';
-                                                                }
-                                                                // Validate units digit of Day of Month
-                                                                if(pos==17 )
-                                                                {
-                                                                        if((Date[0]-'0')==3&&(k_value-'0')<=1)
-                                                                        Date[pos-16]=k_value;
-                                                                        else if((Date[0]-'0')!=3)
-                                                                        Date[pos-16]=k_value;
-                                                                }
-                                                                // Validate tens digit of Month (0-1)
-                                                                if(pos==19 && (k_value-'0')<=1)
-                                                                {
-                                                                        Date[pos-16]=k_value;
-                                                                if((Date[3]-'0')==1)
-                                                                        Date[pos-15]=0+'0';
-                                                          }
-                                                                // Validate units digit of Month
-                                                                if(pos==20)
-                                                                {
-                                                                        if((Date[3]-'0')==1&&(k_value-'0')<=2)
-                                                                        Date[pos-16]=k_value;
-                                                                        else if((Date[3]-'0')!=1)
-                                                                        Date[pos-16]=k_value;
-                                                                }
-                                                                // Redraw LCD display
-                                                                LCD_CMD(0x80);
-                                                                LCD_STR(Time);
-                                                                LCD_CMD(0xc0);
-                                                                LCD_STR(Date);
-                                             LCD_CMD(0xc0+(pos-16));
-
-
-        }
-
-}
 
 // Push string time inputs into RTC internal registers
 void Update_Time(void)
@@ -982,78 +879,6 @@ void Update_Date(void)
 }
 
 // Validation logic for setting device schedule parameters (ON/OFF times)
-void Edit_Shed_Time(u32 pos,u8 k_value)
-{
-        // Edit START schedule digits
-        if(pos==4||pos==5||pos==7||pos==8||pos==11||pos==10)
-        {
-                                                                if((pos==8 || pos==11)&&(k_value-'0')<=9)
-                                                                {
-                                RTC_SHED_START[pos]=k_value;
-                                                                }
-                                                                if((pos==7 || pos==10)&&(k_value-'0')<=5)
-                                                                {
-                                RTC_SHED_START[pos]=k_value;
-                                                                }
-                                                                if(pos==4 &&(k_value-'0')<=2)
-                                                                {
-                                RTC_SHED_START[pos]=k_value;
-                                                                        if(RTC_SHED_START[pos]=='2')
-                                                                                RTC_SHED_START[pos+1]='0';
-                                                                }
-                                                                if(pos==5 )
-                                                                {
-                                                                        if(RTC_SHED_START[pos-1]=='2' &&(k_value-'0')<=3)
-                                                                        {
-                                    RTC_SHED_START[pos]=k_value;
-                                                                        }
-                                                                        else if(RTC_SHED_START[pos-1]!='2')
-                                                                        {
-                                                                                RTC_SHED_START[pos]=k_value;
-                                                                        }
-                                                                }
-                                                                LCD_CMD(0x80);
-                                                                LCD_STR(RTC_SHED_START);
-                                                                LCD_CMD(0xc0);
-                                                                LCD_STR(RTC_SHED_END);
-                                                                LCD_CMD(0x80+pos);
-
-        }
-        // Edit END schedule digits
-        else if(pos==21||pos==26||pos==27||pos==20||pos==23||pos==24)
-        {
-
-                                                                if((pos==27 || pos==24)&&(k_value-'0')<=9)
-                                                                {
-                                RTC_SHED_END[pos-16]=k_value;
-                                                                }
-                                                                if((pos==26 || pos==23)&&(k_value-'0')<=5)
-                                                                {
-                                RTC_SHED_END[pos-16]=k_value;
-                                                                }
-                                                                if(pos==20 &&(k_value-'0')<=2)
-                                                                {
-                                RTC_SHED_END[pos-16]=k_value;
-                                                                        if(RTC_SHED_END[pos-16]=='2')
-                                                                                RTC_SHED_END[pos-15]='0';
-                                                                }
-                                                                if(pos==21)
-                                                                {
-                                                                        if(RTC_SHED_END[pos-1-16]=='2' &&(k_value-'0')<=3)
-                      RTC_SHED_END[pos-16]=k_value;
-                                                                        else if(RTC_SHED_END[pos-1]!='2')
-                                                                                 RTC_SHED_END[pos-16]=k_value;
-                                                                }
-                                                                LCD_CMD(0x80);
-                                                                LCD_STR(RTC_SHED_START);
-                                                                LCD_CMD(0xc0);
-                                                                LCD_STR(RTC_SHED_END);
-                                             LCD_CMD(0xc0+(pos-16));
-
-
-        }
-}
-
 /*----------------------------------------------IN-APPLICATION PROGRAMMING (FLASH WRITE)----------------------------------------*/
 // Saves scheduled times into the MCU's internal Flash Memory (Sector 7) non-volatile storage
 void Upload_shed(void)
@@ -1095,10 +920,7 @@ void Upload_shed(void)
         __disable_irq();
         call_iap(Command,Result);
         __enable_irq();
-    if(Result[0]!=0)
-    {
-       calling();
-    }
+
 }
 
 // Copy values stored in Memory to active working schedule strings
@@ -1116,15 +938,10 @@ void Update_Shed()
        // RTC_SHED_START[10]=Data[10];  // Seconds tens digit (e.g., '0' in "00")
 
         // Read saved END time digits directly from offset Sector 7 Flash memory into the RTC_SHED_END array
-        RTC_SHED_END[4]=(Data+16)[4];   // Hours tens digit
-        RTC_SHED_END[5]=(Data+16)[5];   // Hours units digit
-        RTC_SHED_END[7]=(Data+16)[7];   // Minutes tens digit
-        RTC_SHED_END[8]=(Data+16)[8];   // Minutes units digit
+        RTC_SHED_END[5]=(Data+16)[5];   // Hours tens digit
+        RTC_SHED_END[6]=(Data+16)[6];   // Hours units digit
+        RTC_SHED_END[8]=(Data+16)[8];   // Minutes tens digit
+        RTC_SHED_END[9]=(Data+16)[9];   // Minutes units digit
        // RTC_SHED_END[10]=(Data+16)[10]; // Seconds tens digit
        // RTC_SHED_END[11]=(Data+16)[11]; // Seconds units digit
-}
-void calling()
-{
-LCD_DETA(LCD_CLEAR);
-delay_ms(100000);
 }
