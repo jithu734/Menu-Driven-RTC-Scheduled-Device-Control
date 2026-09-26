@@ -113,11 +113,11 @@ The system:
 | **4×4 Matrix Keypad** | Standard membrane or tactile keypad | 1 |
 | **LED** | Represents the controlled device / load | 1 |
 | **Push Button Switch** | Connected to the EINT0 pin | 1 |
-| **USB-UART Converter / DB-9** | For ISP programming and serial debug | 1 |
-| **Power Supply** | 5 V regulated | 1 |
+| **USB-to-UART (RS-232) Converter** | For bare-metal serial debugging and data logging via UART (No ISP) | 1 |
+| **Power Supply** | 3.3 V regulated | 1 |
 | **Potentiometer** | Adjusts LCD contrast (V0 pin) | 1 |
 | **Resistor 220 Ω** | Series resistor for the LED | 1 |
-| Connecting wires / Breadboard | As required | – |
+| **Connecting wires / Breadboard** | As required | 1 |
 
 ---
 
@@ -125,8 +125,8 @@ The system:
 
 | Tool / Library | Purpose |
 |----------------|---------|
-| **Keil µVision** (or ARM GCC) | Compile, link, and debug |
-| **Flash Magic** | ISP programming of the LPC2148 |
+| **Keil µVision**  | Compile, link, and debug |
+| **Flash Magic** |  Programming of the LPC2148 |
 | **lpc21xx.h** | Peripheral register definitions |
 | **Embedded C** | Application language |
 
@@ -212,7 +212,7 @@ Follow these steps in order. It takes about 20 minutes.
 ### Step 1 — Get the files
 
 ```bash
-git clone https://github.com/<your-username>/Menu-Driven-RTC-Scheduled-Device-Control.git
+https://github.com/jithu734/Menu-Driven-RTC-Scheduled-Device-Control.git
 cd Menu-Driven-RTC-Scheduled-Device-Control
 ```
 
@@ -246,11 +246,11 @@ Connect everything as shown in [Circuit Connections](#-circuit-connections). Dou
 
 Press **F7** (Build). When the build shows **0 Error(s)**, a `.hex` file is created.
 
-### Step 7 — Put the board in ISP mode
+### Step 7 — Put the board in LOAD mode
 
-1. Connect the board to the PC using USB-UART or DB-9.
-2. Hold the **ISP** button and press **Reset** (usually).
-3. Release both buttons. The chip now waits for programming.
+1. Connect the board to the PC using USB-UART .
+2. Toggle the **Slide Switch** to the ON position(LOAD mode), then press and release the Reset Switch.
+3.  The chip now waits for programming.
 
 ### Step 8 — Flash the HEX file
 
@@ -260,11 +260,11 @@ Open **Flash Magic** and set:
 |---------|-------|
 | Device | LPC2148 |
 | COM Port | The port of your USB-UART converter |
-| Baud Rate | 9600 or higher |
+| Baud Rate | configure Flash Magic to the optimal serial transmission speed supported by your hardware |
 | Oscillator (MHz) | 12 |
 | Hex File | Browse and select the generated `.hex` |
 
-Click **Start**. When it finishes, **reset the board**.
+Click **Start**. When it finishes, **Toggle the **Slide Switch** to the OFF position(EXE mode) and Press Reset Butten **.
 
 ### Step 9 — First run: see it work
 
@@ -416,7 +416,7 @@ sequenceDiagram
 ```
 ┌────────────────┐
 │12:45:30 THU    │   Line 1: HH:MM:SS + 3-letter day
-│24/09/2026    ● │   Line 2: DD/MM/YYYY + device status icon
+│24/09/2026 LED✓ │   Line 2: DD/MM/YYYY + device status icon
 └────────────────┘
 ```
 
@@ -599,7 +599,7 @@ flowchart TD
 
 | Action | Result |
 |--------|--------|
-| Press the switch | EINT0 interrupt → `flage = 1` → main menu opens |
+| Press the switch | EINT0 interrupt → `flag = 1` → main menu opens |
 
 ### Quick reference
 
@@ -795,14 +795,14 @@ Menu-Driven-RTC-Scheduled-Device-Control/
 | Interrupt | EINT0, edge-triggered, VIC vectored |
 | Timers Used | Timer0 (blocking delay), Timer1 (menu timeout) |
 | Flash Sector for Schedule | Sector 7 (0x00007000), optional IAP |
-| Programming Interface | ISP via UART (Flash Magic) |
+| Programming Interface | Via USB-UART Converter(Flash Magic) |
 
 ---
 
 ## ⚠️ Known Limitations
 
 - Date-of-Month validation is basic (1–31). Full month-length and leap-year checking can be added.
-- The schedule is mainly held in RAM. Flash write through IAP is implemented but is optional and not active in the main flow.
+- The schedule is mainly held in ROM. Flash write through IAP is implemented and  active in the main flow.
 - The menu timeout is controlled by `delay_ms1()` calls (adjustable).
 - The code uses a single-file design for simplicity. Splitting into several source and header files is recommended for larger projects.
 
