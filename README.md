@@ -39,6 +39,7 @@ The system shows the **real-time date and time** on a 16×2 LCD. You can **set t
 - [Firmware Architecture](#-firmware-architecture)
 - [Project Workflow](#-project-workflow)
 - [What You See on the LCD](#-what-you-see-on-the-lcd)
+- [LCD Output Gallery](#-lcd-output-gallery)
 - [Menu System](#-menu-system)
 - [Keypad Guide](#-keypad-guide)
 - [Schedule Logic](#-schedule-logic)
@@ -97,59 +98,9 @@ The system:
 
 ## 🖼️ Block Diagram
 
-### 1) Classic system block diagram
-
-All peripherals connect to the LPC2148 microcontroller.
-
-```
-                    ┌─────────────────────────────────┐
-                    │          LPC2148                │
-┌──────────────┐    │  ┌───────┐                      │    ┌─────────┐
-│  4×4 Matrix  │───▶│  │  RTC  │─────────────────────▶│───▶│  16×2   │
-│    Keypad    │    │  └───────┘                      │    │   LCD   │
-└──────────────┘    │                                 │    └─────────┘
-                    │                                 │
-┌──────────────┐    │  ┌───────┐                      │    ┌─────────┐
-│   Config     │───▶│  │ EINT0 │                      │───▶│ Device  │
-│   Switch     │    │  └───────┘                      │    │  (LED)  │
-└──────────────┘    │                                 │    └─────────┘
-                    └─────────────────────────────────┘
-```
-
-### 2) Detailed block diagram (with ports)
-
-> This diagram is drawn with Mermaid. GitHub shows it automatically.
-
-```mermaid
-flowchart LR
-    KP["⌨️ 4×4 Matrix Keypad<br/>(User Input)"]
-    SW["🔘 Config Switch<br/>(EINT0)"]
-
-    subgraph MCU["🧠 LPC2148 Microcontroller (ARM7 TDMI-S)"]
-        INT["⚡ EINT0 + VIC<br/>Interrupt"]
-        RTC["⏰ On-chip RTC"]
-        FW["Firmware<br/>Display · Menu · Schedule"]
-        INT --> FW
-        RTC --> FW
-    end
-
-    LCD["🖥️ 16×2 LCD<br/>(Display)"]
-    LED["💡 Device (LED)"]
-
-    KP -->|"Rows P1.16-P1.19<br/>Columns P1.20-P1.23"| FW
-    SW -->|"P0.16"| INT
-    FW -->|"Data P0.8-P0.15<br/>RS P0.17 · EN P0.18"| LCD
-    FW -->|"P1.30"| LED
-```
-
-### Signal flow summary
-
-| From | To | Purpose |
-|------|----|---------|
-| Keypad | LPC2148 | User input for menus and values |
-| Config Switch | EINT0 | Menu activation |
-| LPC2148 RTC | LCD | Time and date display |
-| LPC2148 GPIO | LED | Device ON/OFF control |
+<p align="center">
+    <img src="images/Block_Diagram.png" alt="Project Block Diagram" width="900">
+</p>
 
 ---
 
@@ -201,59 +152,54 @@ Connect each part one by one. Tick each box as you finish.
 
 ### ✅ 1. 16×2 LCD (HD44780)
 
-```
-LPC2148                          16×2 LCD (HD44780)
-───────                          ─────────────────
-P0.8  ─────────────────────────▶ D0
-P0.9  ─────────────────────────▶ D1
-P0.10 ─────────────────────────▶ D2
-P0.11 ─────────────────────────▶ D3
-P0.12 ─────────────────────────▶ D4
-P0.13 ─────────────────────────▶ D5
-P0.14 ─────────────────────────▶ D6
-P0.15 ─────────────────────────▶ D7
-P0.17 ─────────────────────────▶ RS
-P0.18 ─────────────────────────▶ EN
-GND   ─────────────────────────▶ R/W  (tied to GND = write-only)
-VCC   ─────────────────────────▶ VCC  (+5 V)
-GND   ─────────────────────────▶ GND
-POT   ─────────────────────────▶ V0   (contrast)
-```
+<p align="center">
+    <img src="images/Circuit_LCD.png" alt="LCD Wiring Diagram" width="700">
+</p>
+
+| LPC2148 | 16×2 LCD (HD44780) |
+|---------|---------------------|
+| P0.8 – P0.15 | D0 – D7 |
+| P0.17 | RS |
+| P0.18 | EN |
+| GND | R/W (tied to GND = write-only) |
+| VCC | VCC (+5 V) |
+| GND | GND |
+| POT (wiper) | V0 (contrast) |
 
 ### ✅ 2. 4×4 Matrix Keypad
 
-```
-LPC2148                          4×4 KEYPAD
-───────                          ──────────
-P1.16 ─────────────────────────▶ Row 0
-P1.17 ─────────────────────────▶ Row 1
-P1.18 ─────────────────────────▶ Row 2
-P1.19 ─────────────────────────▶ Row 3
-P1.20 ─────────────────────────▶ Col 0
-P1.21 ─────────────────────────▶ Col 1
-P1.22 ─────────────────────────▶ Col 2
-P1.23 ─────────────────────────▶ Col 3
-```
+<p align="center">
+    <img src="images/Circuit_Keypad.png" alt="Keypad Wiring Diagram" width="700">
+</p>
+
+| LPC2148 | 4×4 Keypad |
+|---------|------------|
+| P1.16 – P1.19 | Row 0 – Row 3 |
+| P1.20 – P1.23 | Col 0 – Col 3 |
 
 ### ✅ 3. Device (LED)
 
-```
-LPC2148                          DEVICE (LED)
-───────                          ────────────
-P1.30 ──[220 Ω]──▶ Anode (+) of LED
-GND   ───────────▶ Cathode (−) of LED
-```
+<p align="center">
+    <img src="images/Circuit_LED.png" alt="LED Wiring Diagram" width="500">
+</p>
+
+| LPC2148 | Device (LED) |
+|---------|---------------|
+| P1.30 → [220 Ω] | Anode (+) of LED |
+| GND | Cathode (−) of LED |
 
 P1.30 **HIGH** → LED **ON** (device active). P1.30 **LOW** → LED **OFF**.
 
 ### ✅ 4. Configuration Switch (EINT0)
 
-```
-LPC2148                          PUSH BUTTON
-───────                          ───────────
-P0.16 (EINT0) ─────────────────▶ One terminal of switch
-GND           ─────────────────▶ Other terminal of switch
-```
+<p align="center">
+    <img src="images/Circuit_Switch.png" alt="Configuration Switch Wiring Diagram" width="500">
+</p>
+
+| LPC2148 | Push Button |
+|---------|-------------|
+| P0.16 (EINT0) | One terminal of switch |
+| GND | Other terminal of switch |
 
 An internal pull-up is normally used. Pressing the switch creates a **falling-edge interrupt** on EINT0, which sets the menu-entry flag.
 
@@ -496,6 +442,75 @@ sequenceDiagram
 
 ---
 
+## 📸 LCD Output Gallery
+
+> The following screenshots demonstrate the actual LCD output at each stage — clock display, schedule view, menu navigation, and device control. Replace the placeholder image paths below with your own photos in `images/` once captured.
+
+<table align="center">
+
+<tr>
+<th align="center">🕒 Clock View</th>
+<th align="center">📅 Schedule View</th>
+</tr>
+
+<tr>
+<td align="center">
+<img src="images/Clock_View.png" alt="Clock View" width="420"/>
+<br><b>Time · Day · Date + Device Icon</b>
+</td>
+<td align="center">
+<img src="images/Schedule_View.png" alt="Schedule View" width="420"/>
+<br><b>ON / OFF Schedule Display</b>
+</td>
+</tr>
+
+<tr>
+<th align="center">📋 Main Menu</th>
+<th align="center">⏰ Edit RTC Sub-Menu</th>
+</tr>
+
+<tr>
+<td align="center">
+<img src="images/Main_Menu.png" alt="Main Menu" width="420"/>
+<br><b>EINT0 Triggered Configuration Menu</b>
+</td>
+<td align="center">
+<img src="images/Edit_RTC_Menu.png" alt="Edit RTC Menu" width="420"/>
+<br><b>Hour · Minute · Day · Date · Month · Year</b>
+</td>
+</tr>
+
+<tr>
+<th align="center">🗓️ Edit Schedule Sub-Menu</th>
+<th align="center">✅ Value Accepted / ❌ Rejected</th>
+</tr>
+
+<tr>
+<td align="center">
+<img src="images/Edit_Schedule_Menu.png" alt="Edit Schedule Menu" width="420"/>
+<br><b>ON / OFF Time Configuration</b>
+</td>
+<td align="center">
+<img src="images/Input_Validation.png" alt="Input Validation" width="420"/>
+<br><b>Range Check and Confirmation</b>
+</td>
+</tr>
+
+<tr>
+<th colspan="2" align="center">💡 Device Status</th>
+</tr>
+
+<tr>
+<td colspan="2" align="center">
+<img src="images/Device_ON_OFF.png" alt="Device ON and OFF" width="520"/>
+<br><b>LED ON (Scheduled) vs LED OFF — Driven by RTC Comparison</b>
+</td>
+</tr>
+
+</table>
+
+---
+
 ## 🎛️ Menu System
 
 ### Menu map
@@ -716,6 +731,20 @@ Menu-Driven-RTC-Scheduled-Device-Control/
 │
 ├── Menu-Driven-RTC-Scheduled-Device-Control.c              # Complete single-file application source
 ├── README.md                   # This documentation
+│
+├── Images/
+│   ├── Block_Diagram.png
+│   ├── Circuit_LCD.png
+│   ├── Circuit_Keypad.png
+│   ├── Circuit_LED.png
+│   ├── Circuit_Switch.png
+│   ├── Clock_View.png
+│   ├── Schedule_View.png
+│   ├── Main_Menu.png
+│   ├── Edit_RTC_Menu.png
+│   ├── Edit_Schedule_Menu.png
+│   ├── Input_Validation.png
+│   └── Device_ON_OFF.png
 │
 └── docs/
     └── Menu-Driven RTC Configuration and Scheduled Device Control System.pdf
