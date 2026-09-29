@@ -111,18 +111,18 @@ char Data_Buffer[512] __attribute__((aligned(4)));
 
 // Strings storing default formatted strings for LCD output
 u8 Time[]={"00:00:00        "};
-u8 Date[]={"00/00/2026  LED"};
+u8 Date[]={"00/00/0000  LED"};
 
 // 4x4 Keypad Keymap Matrix
 u8 KPM[4][4]={"789%",
-    "456*",
-    "123-",
-    "c0=+"};
+              "456*",
+              "123-",
+              "c0=+"};
 
 // Menu navigation text strings
 u8 MENU[3][15]={"1.EDIT-TIME",
-    "2.E_dev_T_she",
-    "3.EXIT"};
+                "2.E_dev_T_she",
+                "3.EXIT"};
 
 // Sub-menu for Edit Time: set individual fields with ranges (no SEC)
 u8 TIME_MENU[7][16]={
