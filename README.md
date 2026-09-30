@@ -415,8 +415,8 @@ sequenceDiagram
 
 ```
 ┌────────────────┐
-│12:45:30 THU    │   Line 1: HH:MM:SS + 3-letter day
-│24/09/2026 LED✓ │   Line 2: DD/MM/YYYY + device status icon
+│12:45:30 THU       │   Line 1: HH:MM:SS + 3-letter day
+│24/09/2026 LED✓    │   Line 2: DD/MM/YYYY + device status icon
 └────────────────┘
 ```
 
@@ -424,8 +424,8 @@ sequenceDiagram
 
 ```
 ┌────────────────┐
-│ON:-09:00:00    │   Device turns ON at this time
-│OF:-17:00:00    │   Device turns OFF at this time
+│ON:-09:00:00       │   Device turns ON at this time
+│OF:-17:00:00       │   Device turns OFF at this time
 └────────────────┘
 ```
 
@@ -433,8 +433,8 @@ sequenceDiagram
 
 ```
 ┌────────────────┐
-│1.EDIT-TIME    ▲│
-│2.E_dev_T_she  ▼│
+│1.EDIT-TIME      ▲│
+│2.E_dev_T_she    ▼│
 └────────────────┘
 ```
 
