@@ -20,7 +20,7 @@
 
 //RTC CLOCK FOR 1 TIC
 #define PREINT_VAL ((PCLK/32768)-1)            // Integer prescaler value for Real Time Clock (RTC)
-#define PREFRAC_VAL (PCLK-((PREINT+1)*32768))   // Fractional prescaler value for RTC
+#define PREFRAC_VAL (PCLK-((PREINT_VAL+1)*32768))   // Fractional prescaler value for RTC
 
 // LCD Command Definitions (HD44780 compatible)
 #define FUN_SET 0x30     // Command to set 8-bit interface length
